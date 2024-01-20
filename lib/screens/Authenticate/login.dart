@@ -1,9 +1,6 @@
-import 'dart:developer';
-
 import 'package:email_validator/email_validator.dart';
-import 'package:fb_testing/models/user.dart';
-import 'package:fb_testing/services/auth_service.dart';
-import 'package:fb_testing/widgets/loading_widget.dart';
+import '../../services/auth_service.dart';
+import '../../widgets/loading_widget.dart';
 import 'package:flutter/material.dart';
 
 class Login extends StatefulWidget {
@@ -29,6 +26,10 @@ class _LoginState extends State<Login> {
           TextFormField(
             controller: email,
             decoration: const InputDecoration(hintText: "email"),
+            style: Theme.of(context)
+                .textTheme
+                .bodyMedium!
+                .copyWith(color: Colors.black),
             validator: (value) {
               if (value != null) {
                 if (EmailValidator.validate(value)) {
@@ -45,6 +46,10 @@ class _LoginState extends State<Login> {
           const SizedBox(height: 20),
           TextFormField(
             controller: password,
+            style: Theme.of(context)
+                .textTheme
+                .bodyMedium!
+                .copyWith(color: Colors.black),
             validator: validatePassword,
             decoration: const InputDecoration(
               hintText: "password",

@@ -1,14 +1,15 @@
 import 'dart:developer';
 
-import 'package:fb_testing/firebase_options.dart';
-import 'package:fb_testing/models/user.dart';
-import 'package:fb_testing/screens/Authenticate/Auth_screen.dart';
-import 'package:fb_testing/screens/Home/home_screen.dart';
-import 'package:fb_testing/services/auth_service.dart';
+import 'package:fb_testing/Theme/Theme.dart';
+
+import 'firebase_options.dart';
+import 'models/user.dart';
+import 'screens/Authenticate/Auth_screen.dart';
+import 'screens/Home/home_screen.dart';
+import 'services/auth_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 Future<void> main() async {
@@ -27,35 +28,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
-        textTheme: TextTheme(
-          titleLarge: GoogleFonts.cairo(
-              fontSize: 20, color: Colors.black, fontWeight: FontWeight.w700),
-        ),
-        appBarTheme: AppBarTheme(
-          centerTitle: true,
-          backgroundColor:
-              ColorScheme.fromSeed(seedColor: Colors.green).inversePrimary,
-        ),
-        useMaterial3: true,
-        inputDecorationTheme: InputDecorationTheme(
-          filled: true,
-          fillColor: Colors.grey.shade100,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ButtonStyle(
-            shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-              RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(5.0),
-              ),
-            ),
-          ),
-        ),
-      ),
+      theme: MyThemes().lightTheme,
       home: StreamProvider<UserModel>.value(
         value: AuthService().authStateChangeStream,
         catchError: (context, error) {

@@ -1,10 +1,10 @@
 import 'dart:developer';
 
 import 'package:email_validator/email_validator.dart';
-import 'package:fb_testing/models/user.dart';
-import 'package:fb_testing/services/auth_service.dart';
 import 'package:flutter/material.dart';
-import 'package:intl_phone_field/intl_phone_field.dart';
+
+import '../../models/user.dart';
+import '../../services/auth_service.dart';
 
 class Register extends StatefulWidget {
   const Register({super.key});
@@ -28,6 +28,10 @@ class _RegisterState extends State<Register> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           TextFormField(
+            style: Theme.of(context)
+                .textTheme
+                .bodyMedium!
+                .copyWith(color: Colors.black),
             controller: email,
             decoration: const InputDecoration(hintText: "email"),
             validator: (value) {
@@ -45,6 +49,10 @@ class _RegisterState extends State<Register> {
           ),
           const SizedBox(height: 20),
           TextFormField(
+            style: Theme.of(context)
+                .textTheme
+                .bodyMedium!
+                .copyWith(color: Colors.black),
             controller: password,
             validator: validatePassword,
             decoration: const InputDecoration(
@@ -54,6 +62,10 @@ class _RegisterState extends State<Register> {
           ),
           const SizedBox(height: 20),
           TextFormField(
+            style: Theme.of(context)
+                .textTheme
+                .bodyMedium!
+                .copyWith(color: Colors.black),
             controller: name,
             validator: (s) {
               if (s != null && s.length < 5) {

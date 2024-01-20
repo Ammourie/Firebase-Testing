@@ -1,6 +1,7 @@
 import 'dart:developer';
 
-import 'package:fb_testing/models/user.dart';
+import '../models/user.dart';
+import 'database_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthService {
@@ -40,6 +41,8 @@ class AuthService {
         UserModel user = res.user == null
             ? UserModel()
             : UserModel.fromFirebaseUser(res.user!);
+        await DatabaseService(id: user.id!).updateUserData(
+            note: "hello world", date: DateTime.now().toString());
         return user;
       }
     } catch (e) {
