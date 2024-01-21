@@ -19,11 +19,41 @@ class _AuthScreenState extends State<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Sign In"),
-        actions: [
-          TextButton(
-              onPressed: () {
+      // appBar: AppBar(
+      //   title: const Text("Sign In"),
+      //   actions: [
+      //     TextButton(
+      //         onPressed: () {
+      //           if (login) {
+      //             _child = Register();
+      //           } else {
+      //             _child = Login();
+      //           }
+      //           login = !login;
+      //           setState(() {});
+      //         },
+      //         child: Text(!login ? 'Login' : "Register"))
+      //   ],
+      // ),
+      resizeToAvoidBottomInset: false,
+
+      body: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+              image: AssetImage("assets/auth-back.png"), fit: BoxFit.cover),
+        ),
+        child: Column(
+          // primary: false,
+          children: [
+            SizedBox(height: MediaQuery.of(context).size.height / 4),
+            Text(!login ? "Register" : "Login",
+                style: Theme.of(context).textTheme.titleLarge),
+            SizedBox(
+                height: MediaQuery.of(context).size.height / 2.25,
+                child: _child),
+            GestureDetector(
+              onTap: () {
                 if (login) {
                   _child = Register();
                 } else {
@@ -32,12 +62,14 @@ class _AuthScreenState extends State<AuthScreen> {
                 login = !login;
                 setState(() {});
               },
-              child: Text(!login ? 'Login' : "Register"))
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: _child,
+              child: Text(
+                login ? "Register" : "Login",
+                style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                    decoration: TextDecoration.underline, fontSize: 20),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -1,7 +1,9 @@
 import 'package:email_validator/email_validator.dart';
+import 'package:fb_testing/screens/Authenticate/register.dart';
+import 'package:flutter/material.dart';
+
 import '../../services/auth_service.dart';
 import '../../widgets/loading_widget.dart';
-import 'package:flutter/material.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -15,17 +17,20 @@ class _LoginState extends State<Login> {
   TextEditingController email = TextEditingController();
   TextEditingController password = TextEditingController();
   bool loading = false;
+  bool obscure = true;
+
   AuthService _authService = AuthService();
   @override
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+      child: ListView(
+        primary: false,
         children: [
           TextFormField(
+            keyboardType: TextInputType.emailAddress,
             controller: email,
-            decoration: const InputDecoration(hintText: "email"),
+            decoration: const InputDecoration(labelText: "email"),
             style: Theme.of(context)
                 .textTheme
                 .bodyMedium!
@@ -51,74 +56,52 @@ class _LoginState extends State<Login> {
                 .bodyMedium!
                 .copyWith(color: Colors.black),
             validator: validatePassword,
-            decoration: const InputDecoration(
-              hintText: "password",
+            decoration: InputDecoration(
+              suffixIcon: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    obscure = !obscure;
+                  });
+                },
+                child: Icon(obscure ? Icons.visibility : Icons.visibility_off),
+              ),
+              labelText: "password",
             ),
-            obscureText: true,
+            obscureText: obscure,
           ),
           const SizedBox(height: 20),
           loading
               ? const LoadingWidget()
-              : Column(
-                  children: [
-                    ElevatedButton(
-                      onPressed: () async {
-                        if (_formKey.currentState!.validate()) {
-                          setState(() {
-                            loading = true;
-                          });
-                          await _authService.login(
-                            email: email.text,
-                            password: password.text,
-                          );
-                          setState(() {
-                            loading = false;
-                          });
-                        }
-                      },
-                      child: Text(
-                        "Login",
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    TextButton(
-                      onPressed: () async {
+              : Align(
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      if (_formKey.currentState!.validate()) {
                         setState(() {
                           loading = true;
                         });
-                        await _authService.signInAon();
+                        await _authService.login(
+                          email: email.text,
+                          password: password.text,
+                        );
                         setState(() {
                           loading = false;
                         });
-                      },
-                      child: const Text(
-                        "Login Anon",
-                      ),
+                      }
+                    },
+                    child: Text(
+                      "Login",
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium!
+                          .copyWith(color: Colors.black, fontSize: 20),
                     ),
-                  ],
+                  ),
                 ),
+          SizedBox(
+              height: MediaQuery.of(context).size.height / 2.25 -
+                  MediaQuery.of(context).viewInsets.bottom)
         ],
       ),
     );
   }
-}
-
-String? validatePassword(String? value) {
-  if (value == null) return null;
-  final numreg = RegExp(r'\d');
-  final bigAlphareg = RegExp(r'[A-Z]');
-  final smallAlpgareg = RegExp(r'[a-z]');
-  if (value.length < 8) {
-    return ("password should be at least 8 characters");
-  } else if (value.length > 20) {
-    return ("password should be no more 20 characters");
-  } else if (!numreg.hasMatch(value)) {
-    return ("password should have at least 1 numbers");
-  } else if (!smallAlpgareg.hasMatch(value)) {
-    return ("password should have at least 1 small letter");
-  } else if (!bigAlphareg.hasMatch(value)) {
-    return ("password should have at least 1 capital letter");
-  }
-  return null;
 }

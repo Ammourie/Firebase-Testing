@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:fb_testing/Theme/Theme.dart';
+import 'package:flutter/services.dart';
 
 import 'firebase_options.dart';
 import 'models/user.dart';
@@ -17,6 +18,10 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    // systemNavigationBarColor: Colors.black, // navigation bar color
+    statusBarColor: Colors.transparent, // status bar color
+  ));
   runApp(const MyApp());
 }
 

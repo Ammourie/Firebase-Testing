@@ -1,9 +1,7 @@
-import 'dart:developer';
-
 import 'package:email_validator/email_validator.dart';
+import 'package:fb_testing/widgets/loading_widget.dart';
 import 'package:flutter/material.dart';
 
-import '../../models/user.dart';
 import '../../services/auth_service.dart';
 
 class Register extends StatefulWidget {
@@ -20,20 +18,40 @@ class _RegisterState extends State<Register> {
   TextEditingController name = TextEditingController();
   TextEditingController phone = TextEditingController();
   final AuthService _authService = AuthService();
+  bool loading = false;
+  bool obscure = true;
   @override
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+      child: ListView(
+        primary: false,
         children: [
           TextFormField(
             style: Theme.of(context)
                 .textTheme
                 .bodyMedium!
                 .copyWith(color: Colors.black),
+            controller: name,
+            validator: (s) {
+              if (s != null && s.length < 5) {
+                return "Name must be at least 5 letters";
+              }
+              return null;
+            },
+            decoration: const InputDecoration(
+              labelText: "Name",
+            ),
+          ),
+          const SizedBox(height: 20),
+          TextFormField(
+            keyboardType: TextInputType.emailAddress,
+            style: Theme.of(context)
+                .textTheme
+                .bodyMedium!
+                .copyWith(color: Colors.black),
             controller: email,
-            decoration: const InputDecoration(hintText: "email"),
+            decoration: const InputDecoration(labelText: "email"),
             validator: (value) {
               if (value != null) {
                 if (EmailValidator.validate(value)) {
@@ -55,52 +73,60 @@ class _RegisterState extends State<Register> {
                 .copyWith(color: Colors.black),
             controller: password,
             validator: validatePassword,
-            decoration: const InputDecoration(
-              hintText: "password",
+            decoration: InputDecoration(
+              suffixIcon: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    obscure = !obscure;
+                  });
+                },
+                child: Icon(obscure ? Icons.visibility : Icons.visibility_off),
+              ),
+              labelText: "password",
             ),
-            obscureText: true,
+            obscureText: obscure,
           ),
           const SizedBox(height: 20),
-          TextFormField(
-            style: Theme.of(context)
-                .textTheme
-                .bodyMedium!
-                .copyWith(color: Colors.black),
-            controller: name,
-            validator: (s) {
-              if (s != null && s.length < 5) {
-                return "Name must be at least 5 letters";
-              }
-              return null;
-            },
-            decoration: const InputDecoration(
-              hintText: "Name",
-            ),
-          ),
-          const SizedBox(height: 20),
+
           // IntlPhoneField(
           //   controller: phone,
           //   keyboardType: TextInputType.phone,
           //   decoration: const InputDecoration(
-          //     hintText: "Phone",
+          //     labelText: "Phone",
           //   ),
           //   obscureText: true,
           // ),
           // const SizedBox(height: 20),
-          ElevatedButton(
-              onPressed: () async {
-                if (_formKey.currentState!.validate()) {
-                  UserModel? user = await _authService.register(
-                      email: email.text,
-                      password: password.text,
-                      name: name.text);
-                  if (user != null) log(user.toJson().toString());
-                }
-              },
-              child: Text(
-                "Register",
-                style: Theme.of(context).textTheme.titleLarge,
-              )),
+          loading
+              ? const LoadingWidget()
+              : Align(
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      if (_formKey.currentState!.validate()) {
+                        setState(() {
+                          loading = true;
+                        });
+                        await _authService.register(
+                            email: email.text,
+                            password: password.text,
+                            name: name.text);
+                        setState(() {
+                          loading = false;
+                        });
+                      }
+                    },
+                    child: Text(
+                      "Register",
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium!
+                          .copyWith(color: Colors.black, fontSize: 20),
+                    ),
+                  ),
+                ),
+          SizedBox(
+              height: MediaQuery.of(context).size.height / 2.25 -
+                  MediaQuery.of(context).viewInsets.bottom)
         ],
       ),
     );
@@ -109,19 +135,14 @@ class _RegisterState extends State<Register> {
 
 String? validatePassword(String? value) {
   if (value == null) return null;
-  final numreg = RegExp(r'\d');
-  final bigAlphareg = RegExp(r'[A-Z]');
-  final smallAlpgareg = RegExp(r'[a-z]');
-  if (value.length < 8) {
-    return ("password should be at least 8 characters");
-  } else if (value.length > 20) {
-    return ("password should be no more 20 characters");
-  } else if (!numreg.hasMatch(value)) {
-    return ("password should have at least 1 numbers");
-  } else if (!smallAlpgareg.hasMatch(value)) {
-    return ("password should have at least 1 small letter");
-  } else if (!bigAlphareg.hasMatch(value)) {
-    return ("password should have at least 1 capital letter");
+  RegExp regex = RegExp(r'^(?=.*[A-Za-z])(?=.*\d).+');
+  var passNonNullValue = value;
+  if (passNonNullValue.isEmpty) {
+    return ("Password is required");
+  } else if (passNonNullValue.length < 6) {
+    return ("Password Must be more than 5 characters");
+  } else if (!regex.hasMatch(passNonNullValue)) {
+    return ("Password should contain digits and characters ");
   }
   return null;
 }

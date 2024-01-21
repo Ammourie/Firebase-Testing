@@ -9,14 +9,16 @@ class DatabaseService {
   DatabaseService({this.id}) {
     _notesRefrence = FirebaseFirestore.instance.collection(id!);
   }
-  Future updateUserData({
-    required String note,
-    required String date,
-  }) async {
-    return await _notesRefrence.doc().set({
+  Future updateUserData(
+      {required String note, required String date, String? id}) async {
+    return await _notesRefrence.doc(id).set({
       "note": note,
       "date": date,
     });
+  }
+
+  Future deleteDocbyId({required String id}) async {
+    await _notesRefrence.doc(id).delete();
   }
 
   Stream<List<NoteModel>> get notes {
@@ -26,12 +28,18 @@ class DatabaseService {
   }
 
   List<NoteModel> _noteListFromSnapshot(QuerySnapshot snapshot) {
-    return snapshot.docs.map((doc) {
-      //print(doc.data);
+    List<NoteModel> notes = snapshot.docs.map((doc) {
       return NoteModel(
         note: doc.get("note"),
         date: doc.get("date"),
+        id: doc.id,
       );
     }).toList();
+    notes.sort((a, b) {
+      String date1 = b.date!;
+      String date2 = a.date!;
+      return date1.compareTo(date2);
+    });
+    return notes;
   }
 }
