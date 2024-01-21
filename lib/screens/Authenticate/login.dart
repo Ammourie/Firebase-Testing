@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:email_validator/email_validator.dart';
 import 'package:fb_testing/screens/Authenticate/register.dart';
 import 'package:flutter/material.dart';
@@ -98,8 +100,10 @@ class _LoginState extends State<Login> {
                   ),
                 ),
           SizedBox(
-              height: MediaQuery.of(context).size.height / 2.25 -
-                  MediaQuery.of(context).viewInsets.bottom)
+              height: min(
+                  MediaQuery.of(context).size.height / 2.25 -
+                      MediaQuery.of(context).viewInsets.bottom,
+                  MediaQuery.of(context).viewInsets.bottom))
         ],
       ),
     );

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:email_validator/email_validator.dart';
 import 'package:fb_testing/widgets/loading_widget.dart';
 import 'package:flutter/material.dart';
@@ -125,8 +127,10 @@ class _RegisterState extends State<Register> {
                   ),
                 ),
           SizedBox(
-              height: MediaQuery.of(context).size.height / 2.25 -
-                  MediaQuery.of(context).viewInsets.bottom)
+              height: min(
+                  MediaQuery.of(context).size.height / 2.25 -
+                      MediaQuery.of(context).viewInsets.bottom,
+                  MediaQuery.of(context).viewInsets.bottom))
         ],
       ),
     );
