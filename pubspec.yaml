@@ -46,6 +46,8 @@ dependencies:
   flutter_spinkit: ^5.2.0
   intl: ^0.19.0
   expandable: ^5.0.1
+  getwidget: ^4.0.0
+  # animated_search_bar: ^2.7.1
   # phone_number: ^2.0.1
 
 dev_dependencies:

@@ -5,6 +5,7 @@ import 'package:fb_testing/models/user.dart';
 import 'package:fb_testing/screens/Home/home_screen.dart';
 import 'package:fb_testing/services/database_service.dart';
 import 'package:fb_testing/utils/dialogs.dart';
+import 'package:fb_testing/widgets/loading_widget.dart';
 import 'package:fb_testing/widgets/no_items_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -19,15 +20,15 @@ class NotesListWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final List<NoteModel> notes = Provider.of<List<NoteModel>>(context);
 
-    return ExpandableNotifier(
-      child: notes.isEmpty
-          ? const EmptyListWidget()
-          : ListView.separated(
-              itemBuilder: (context, index) =>
-                  AnimatednoteItem(note: notes[index], index: index),
-              separatorBuilder: (context, index) => const Divider(),
-              itemCount: notes.length),
-    );
+    return notes.isNotEmpty && notes[0].id == "-1"
+        ? const LoadingWidget()
+        : notes.isEmpty
+            ? const EmptyListWidget()
+            : ListView.separated(
+                itemBuilder: (context, index) =>
+                    AnimatednoteItem(note: notes[index], index: index),
+                separatorBuilder: (context, index) => const Divider(),
+                itemCount: notes.length);
   }
 }
 
@@ -81,71 +82,73 @@ class _AnimatednoteItemState extends State<AnimatednoteItem> {
         child: Container(
           padding: const EdgeInsets.all(10),
           margin: const EdgeInsets.all(10),
-          child: ExpandablePanel(
-            theme: const ExpandableThemeData(
-                iconPlacement: ExpandablePanelIconPlacement.left,
-                iconPadding: EdgeInsets.only(top: 11)),
-            collapsed: Text(
-                widget.note.note!.substring(
-                        0,
-                        min(
-                          widget.note.note!.length,
-                          150,
-                        )) +
-                    (widget.note.note!.length >= 150 ? " ..." : ""),
-                style: Theme.of(context).textTheme.bodyMedium),
-            header: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    DateFormat("yyyy-MM-dd  kk:mm:a")
-                        .format(DateTime.parse(widget.note.date!)),
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleSmall!
-                        .copyWith(fontWeight: FontWeight.w900),
-                  ),
-                  Row(
-                    children: [
-                      GestureDetector(
-                          onTap: () {
-                            docModalShow(
-                              context,
-                              user.id!,
-                              docId: widget.note.id,
-                              initNote: widget.note.note!,
+          child: ExpandableNotifier(
+            child: ExpandablePanel(
+              theme: const ExpandableThemeData(
+                  iconPlacement: ExpandablePanelIconPlacement.left,
+                  iconPadding: EdgeInsets.only(top: 11)),
+              collapsed: Text(
+                  widget.note.note!.substring(
+                          0,
+                          min(
+                            widget.note.note!.length,
+                            150,
+                          )) +
+                      (widget.note.note!.length >= 150 ? " ..." : ""),
+                  style: Theme.of(context).textTheme.bodyMedium),
+              header: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      DateFormat("yyyy-MM-dd  kk:mm:a")
+                          .format(DateTime.parse(widget.note.date!)),
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleSmall!
+                          .copyWith(fontWeight: FontWeight.w900),
+                    ),
+                    Row(
+                      children: [
+                        GestureDetector(
+                            onTap: () {
+                              docModalShow(
+                                context,
+                                user.id!,
+                                docId: widget.note.id,
+                                initNote: widget.note.note!,
+                              );
+                            },
+                            child: const Icon(Icons.edit_outlined,
+                                color: Colors.green)),
+                        const SizedBox(width: 10),
+                        GestureDetector(
+                          onTap: () async {
+                            MyDialogs.showcupertinoAlertDialog(
+                              context: context,
+                              title: "Delete Note",
+                              content:
+                                  "The note will be permanently deleted. Are you sure?",
+                              onYes: () async {
+                                Navigator.pop(context);
+                                await DatabaseService(id: user.id)
+                                    .deleteDocbyId(id: widget.note.id!);
+                              },
                             );
                           },
-                          child: const Icon(Icons.edit_outlined,
-                              color: Colors.green)),
-                      const SizedBox(width: 10),
-                      GestureDetector(
-                        onTap: () async {
-                          MyDialogs.showcupertinoAlertDialog(
-                            context: context,
-                            title: "Delete Note",
-                            content:
-                                "The note will be permanently deleted. Are you sure?",
-                            onYes: () async {
-                              Navigator.pop(context);
-                              await DatabaseService(id: user.id)
-                                  .deleteDocbyId(id: widget.note.id!);
-                            },
-                          );
-                        },
-                        child:
-                            const Icon(Icons.delete_forever, color: Colors.red),
-                      ),
-                    ],
-                  )
-                ],
+                          child: const Icon(Icons.delete_forever,
+                              color: Colors.red),
+                        ),
+                      ],
+                    )
+                  ],
+                ),
               ),
+              expanded: Text(widget.note.note!,
+                  style: Theme.of(context).textTheme.bodyMedium),
+              controller: ExpandableController(initialExpanded: false),
             ),
-            expanded: Text(widget.note.note!,
-                style: Theme.of(context).textTheme.bodyMedium),
-            controller: ExpandableController(initialExpanded: false),
           ),
         ),
       ),
