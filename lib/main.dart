@@ -1,11 +1,11 @@
 import 'dart:developer';
 
-import 'package:fb_testing/Theme/Theme.dart';
+import 'Theme/theme.dart';
 import 'package:flutter/services.dart';
 
 import 'firebase_options.dart';
 import 'models/user.dart';
-import 'screens/Authenticate/Auth_screen.dart';
+import 'screens/Authenticate/auth_screen.dart';
 import 'screens/Home/home_screen.dart';
 import 'services/auth_service.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -53,6 +53,6 @@ class Wrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     UserModel? user = Provider.of<UserModel>(context);
 
-    return user.id != null ? HomeScreen() : const AuthScreen();
+    return user.id != null ? const HomeScreen() : const AuthScreen();
   }
 }

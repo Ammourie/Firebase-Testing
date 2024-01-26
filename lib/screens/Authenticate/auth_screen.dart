@@ -55,9 +55,9 @@ class _AuthScreenState extends State<AuthScreen> {
             GestureDetector(
               onTap: () {
                 if (login) {
-                  _child = Register();
+                  _child = const Register();
                 } else {
-                  _child = Login();
+                  _child = const Login();
                 }
                 login = !login;
                 setState(() {});

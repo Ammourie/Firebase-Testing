@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:email_validator/email_validator.dart';
-import 'package:fb_testing/screens/Authenticate/register.dart';
+import 'register.dart';
 import 'package:flutter/material.dart';
 
 import '../../services/auth_service.dart';
@@ -21,7 +21,7 @@ class _LoginState extends State<Login> {
   bool loading = false;
   bool obscure = true;
 
-  AuthService _authService = AuthService();
+  final AuthService _authService = AuthService();
   @override
   Widget build(BuildContext context) {
     return Form(

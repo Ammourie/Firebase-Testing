@@ -1,7 +1,10 @@
+import 'package:fb_testing/utils/dialogs.dart';
 import 'package:fb_testing/widgets/loading_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:getwidget/components/drawer/gf_drawer.dart';
 import 'package:intl/intl.dart' as intl;
+import 'package:provider/provider.dart';
+
 import '../../models/note.dart';
 import '../../models/user.dart';
 import '../../services/auth_service.dart';
@@ -10,20 +13,32 @@ import '../../widgets/notes_widget.dart';
 
 // ignore: must_be_immutable
 class HomeScreen extends StatelessWidget {
-  HomeScreen({super.key});
-  AuthService _authService = AuthService();
+  const HomeScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     UserModel? user = Provider.of<UserModel>(context);
 
     return Scaffold(
+      drawer: MyDrawer(),
       appBar: AppBar(
         toolbarHeight: kToolbarHeight + 50,
         shadowColor: Colors.black,
         elevation: 10,
-        surfaceTintColor: Colors.transparent,
-        title: searchTextField(),
-
+        surfaceTintColor: Colors.transparent, centerTitle: false,
+        title: const SearchTextField(),
+        // actions: [
+        //   Padding(
+        //     padding: const EdgeInsets.all(10.0),
+        //     child: GestureDetector(
+        //       child: Icon(
+        //         Icons.menu,
+        //         color: Theme.of(context).buttonTheme.colorScheme!.primary,
+        //         size: 35,
+        //       ),
+        //     ),
+        //   ),
+        // ],
         // title: Text(
         //   user.name != null ? "Hello ${user.name}" : "Home Screen",
         //   style: Theme.of(context).textTheme.titleLarge,
@@ -38,11 +53,12 @@ class HomeScreen extends StatelessWidget {
       ),
       body: StreamProvider<List<NoteModel>>.value(
           value: DatabaseService(id: user.id).notes,
-          initialData: [NoteModel(id: "-1")],
+          initialData: [],
           child: const NotesListWidget()),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          docModalShow(context, user.id!);
+          // docModalShow(context, user.id!);
+          MyDialogs.showNoteDialog(context: context, userid: user.id!);
         },
         child: const Icon(
           Icons.add_outlined,
@@ -53,21 +69,208 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-class searchTextField extends StatefulWidget {
-  searchTextField({
+class MyDrawer extends StatelessWidget {
+  MyDrawer({
+    super.key,
+  });
+  final AuthService _authService = AuthService();
+  @override
+  Widget build(BuildContext context) {
+    return GFDrawer(
+      child: StreamBuilder<UserModel>(
+        builder: (context, snapshot) {
+          return SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+              child: Column(
+                children: [
+                  const SizedBox(height: 20),
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.inversePrimary,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.person_2_sharp,
+                      color: Theme.of(context).primaryColor,
+                      size: 150,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width / 2,
+                    child: Text(
+                      snapshot.hasData ? snapshot.data!.name ?? "" : "",
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                            fontWeight: FontWeight.normal,
+                            color: Theme.of(context).colorScheme.inversePrimary,
+                            fontSize: 27,
+                          ),
+                    ),
+                  ),
+                  Divider(
+                    color: Theme.of(context).dividerColor,
+                    thickness: 4,
+                  ),
+                  // const SizedBox(height: 10),
+                  // Align(
+                  //   alignment: AlignmentDirectional.centerStart,
+                  //   child: Text(
+                  //     "Categories",
+                  //     style: Theme.of(context).textTheme.titleSmall,
+                  //   ),
+                  // ),
+                  // const SizedBox(height: 10),
+                  // StreamBuilder<List<CategoryModel>>(
+                  //     stream: DatabaseService(id: user.id).categories,
+                  //     builder: (context, snp) {
+                  //       return !snp.hasData
+                  //           ? Container()
+                  //           : ListView.builder(
+                  //               shrinkWrap: true,
+                  //               physics: const NeverScrollableScrollPhysics(),
+                  //               padding: EdgeInsets.zero,
+                  //               itemCount: snp.data!.length,
+                  //               itemBuilder: (context, index) {
+                  //                 CategoryModel cat = snp.data![index];
+                  //                 return ListTile(
+                  //                   contentPadding: EdgeInsets.zero,
+                  //                   title: Text(
+                  //                     cat.name!,
+                  //                     style: Theme.of(context)
+                  //                         .textTheme
+                  //                         .titleSmall!
+                  //                         .copyWith(color: Color(cat.color!)),
+                  //                   ),
+                  //                   subtitle: Text(
+                  //                     cat.count!.toString(),
+                  //                     style: Theme.of(context)
+                  //                         .textTheme
+                  //                         .titleSmall!
+                  //                         .copyWith(
+                  //                             color: Color(cat.color!),
+                  //                             fontSize: 15),
+                  //                   ),
+                  //                   trailing: Row(
+                  //                     mainAxisSize: MainAxisSize.min,
+                  //                     children: [
+                  //                       GestureDetector(
+                  //                         onTap: () {},
+                  //                         child: const Icon(
+                  //                           Icons.edit,
+                  //                           color: Colors.green,
+                  //                           size: 24,
+                  //                         ),
+                  //                       ),
+                  //                       const SizedBox(width: 10),
+                  //                       const Icon(
+                  //                         Icons.delete,
+                  //                         color: Colors.red,
+                  //                         size: 24,
+                  //                       ),
+                  //                     ],
+                  //                   ),
+                  //                   leading: Icon(
+                  //                     Icons.bookmark,
+                  //                     color: Color(cat.color!),
+                  //                     size: 24,
+                  //                   ),
+                  //                 );
+                  //               },
+                  //             );
+                  //     }),
+                  // Divider(color: Theme.of(context).dividerColor, thickness: 1),
+                  // ListTile(
+                  //   onTap: () {
+                  //     // Navigator.push(
+                  //     //     context,
+                  //     //     MaterialPageRoute(
+                  //     //         builder: (context) => const CategoryPage()));
+                  //     // MyDialogs.showCategoryAddDialog(context: context);
+                  //   },
+                  //   contentPadding: EdgeInsets.zero,
+                  //   title: Text(
+                  //     "Add new category",
+                  //     style: Theme.of(context)
+                  //         .textTheme
+                  //         .titleSmall!
+                  //         .copyWith(color: Theme.of(context).primaryColor),
+                  //   ),
+                  //   leading: Icon(
+                  //     Icons.bookmark_add,
+                  //     color: Theme.of(context).primaryColor,
+                  //     size: 24,
+                  //   ),
+                  // ),
+                  // Divider(color: Theme.of(context).dividerColor, thickness: 4),
+                  // ListTile(
+                  //   contentPadding: EdgeInsets.zero,
+                  //   title: Text(
+                  //     "Settings",
+                  //     style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                  //           color: Colors.black,
+                  //         ),
+                  //   ),
+                  //   leading: const Icon(
+                  //     Icons.settings,
+                  //     color: Colors.grey,
+                  //     size: 24,
+                  //   ),
+                  // ),
+                  const Spacer(),
+                  ListTile(
+                    onTap: () {
+                      MyDialogs.showcupertinoAlertDialog(
+                        context: context,
+                        title: "Logout",
+                        content: "Are you sure?",
+                        onYes: () async {
+                          Navigator.pop(context);
+                          await _authService.logout();
+                        },
+                      );
+                    },
+                    tileColor: Colors.red.shade100,
+                    leading: const Icon(
+                      Icons.logout_outlined,
+                      color: Colors.red,
+                    ),
+                    title: Text(
+                      "Logout",
+                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                          color: Colors.red,
+                          fontWeight: FontWeight.normal,
+                          fontSize: 22),
+                    ),
+                  )
+                ],
+              ),
+            ),
+          );
+        },
+        stream: AuthService().authStateChangeStream,
+      ),
+    );
+  }
+}
+
+class SearchTextField extends StatefulWidget {
+  const SearchTextField({
     super.key,
   });
 
   @override
-  State<searchTextField> createState() => _searchTextFieldState();
+  State<SearchTextField> createState() => _SearchTextFieldState();
 }
 
-class _searchTextFieldState extends State<searchTextField> {
+class _SearchTextFieldState extends State<SearchTextField> {
   bool isRTL(String text) {
     return intl.Bidi.detectRtlDirectionality(text);
   }
 
-  TextEditingController _textController = TextEditingController();
+  final TextEditingController _textController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return TextFormField(
@@ -155,11 +358,12 @@ void docModalShow(
                         onPressed: () async {
                           if (key.currentState!.validate()) {
                             state(() => adding = true);
-                            await DatabaseService(id: id).updateUserData(
-                              note: note,
-                              date: DateTime.now().toString(),
-                              id: docId,
-                            );
+                            NoteModel noteModel = NoteModel(
+                                note: note,
+                                date: DateTime.now().toString(),
+                                id: docId);
+                            await DatabaseService(id: id)
+                                .updateUserNote(note: noteModel);
                             Navigator.pop(context);
                           }
                         },
@@ -171,7 +375,7 @@ void docModalShow(
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          minimumSize: Size(180, 50), //////// HERE
+                          minimumSize: const Size(180, 50), //////// HERE
 
                           elevation: 15.0,
                         ),

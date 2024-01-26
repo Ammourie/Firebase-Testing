@@ -1,10 +1,10 @@
 import 'dart:math';
 
 import 'package:email_validator/email_validator.dart';
-import 'package:fb_testing/widgets/loading_widget.dart';
 import 'package:flutter/material.dart';
 
 import '../../services/auth_service.dart';
+import '../../widgets/loading_widget.dart';
 
 class Register extends StatefulWidget {
   const Register({super.key});
