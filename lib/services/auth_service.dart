@@ -65,6 +65,9 @@ class AuthService {
           color: noteColors[math.Random().nextInt(noteColors.length)],
         );
         await DatabaseService(id: user.id!).updateUserNote(note: note);
+        user.name = name;
+        await DatabaseService(id: user.id!).addUser(user: user);
+
         return user;
       }
     } catch (e) {

@@ -1,5 +1,8 @@
+import 'package:fb_testing/screens/chat/chats_page.dart';
+import 'package:fb_testing/services/chat_service.dart';
 import 'package:fb_testing/utils/dialogs.dart';
 import 'package:fb_testing/widgets/loading_widget.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:getwidget/components/drawer/gf_drawer.dart';
 import 'package:intl/intl.dart' as intl;
@@ -12,8 +15,15 @@ import '../../services/database_service.dart';
 import '../../widgets/notes_widget.dart';
 
 // ignore: must_be_immutable
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+class HomeScreen extends StatefulWidget {
+  HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  String search = "";
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +36,12 @@ class HomeScreen extends StatelessWidget {
         shadowColor: Colors.black,
         elevation: 10,
         surfaceTintColor: Colors.transparent, centerTitle: false,
-        title: const SearchTextField(),
+        title: SearchTextField(
+          onChanged: (p0) {
+            search = p0;
+            setState(() {});
+          },
+        ),
         // actions: [
         //   Padding(
         //     padding: const EdgeInsets.all(10.0),
@@ -52,7 +67,7 @@ class HomeScreen extends StatelessWidget {
         // ],
       ),
       body: StreamProvider<List<NoteModel>>.value(
-          value: DatabaseService(id: user.id).notes,
+          value: DatabaseService(id: user.id).notes(search: search),
           initialData: [],
           child: const NotesListWidget()),
       floatingActionButton: FloatingActionButton(
@@ -85,18 +100,51 @@ class MyDrawer extends StatelessWidget {
               child: Column(
                 children: [
                   const SizedBox(height: 20),
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.inversePrimary,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.person_2_sharp,
-                      color: Theme.of(context).primaryColor,
-                      size: 150,
-                    ),
-                  ),
+                  StreamBuilder<List<UserModel>>(
+                      stream: ChatService().getAllUsersStram(),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          UserModel user = snapshot.data!
+                              .where((element) =>
+                                  element.id ==
+                                  FirebaseAuth.instance.currentUser!.uid)
+                              .first;
+
+                          return Container(
+                            width: 180,
+                            height: 180,
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                  image: NetworkImage(user.image ?? "")),
+                              color:
+                                  Theme.of(context).colorScheme.inversePrimary,
+                              shape: BoxShape.circle,
+                            ),
+                          );
+                          // Icon(
+                          //   Icons.person_2_sharp,
+                          //   color: Theme.of(context).primaryColor,
+                          //   size: 150,
+                          // );
+                        } else {
+                          return Container(
+                              width: 180,
+                              height: 180,
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .inversePrimary,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.person_2_sharp,
+                                color: Theme.of(context).primaryColor,
+                                size: 150,
+                              ));
+                        }
+                      }),
                   const SizedBox(height: 10),
                   SizedBox(
                     width: MediaQuery.of(context).size.width / 2,
@@ -105,7 +153,7 @@ class MyDrawer extends StatelessWidget {
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.titleLarge!.copyWith(
                             fontWeight: FontWeight.normal,
-                            color: Theme.of(context).colorScheme.inversePrimary,
+                            color: Theme.of(context).colorScheme.primary,
                             fontSize: 27,
                           ),
                     ),
@@ -219,6 +267,27 @@ class MyDrawer extends StatelessWidget {
                   //     size: 24,
                   //   ),
                   // ),
+                  const SizedBox(height: 10),
+                  ListTile(
+                    onTap: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => ChatsPage()));
+                      // MyDialogs.showCategoryAddDialog(context: context);
+                    },
+                    title: Text(
+                      "Chat test",
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium!
+                          .copyWith(color: Colors.green),
+                    ),
+                    tileColor: Colors.green.shade100,
+                    leading: const Icon(
+                      Icons.chat_outlined,
+                      color: Colors.green,
+                      size: 26,
+                    ),
+                  ),
                   const Spacer(),
                   ListTile(
                     onTap: () {
@@ -259,8 +328,9 @@ class MyDrawer extends StatelessWidget {
 class SearchTextField extends StatefulWidget {
   const SearchTextField({
     super.key,
+    this.onChanged,
   });
-
+  final void Function(String)? onChanged;
   @override
   State<SearchTextField> createState() => _SearchTextFieldState();
 }
@@ -274,26 +344,28 @@ class _SearchTextFieldState extends State<SearchTextField> {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-      onChanged: (value) {
-        setState(() {
-          _textController.text = value;
-        });
-      },
+      onChanged: widget.onChanged,
+      // onChanged: (value) {
+      //   setState(() {
+      //     _textController.text = value;
+      //   });
+      // },
       textDirection:
           isRTL(_textController.text) ? TextDirection.rtl : TextDirection.ltr,
       decoration: InputDecoration(
         hintText: "search ...",
         hintStyle: Theme.of(context).textTheme.bodyLarge!,
         prefixIcon: const Icon(Icons.search),
-        suffixIcon: GestureDetector(
-          onTap: () {
-            setState(() {
-              _textController.text = "";
-            });
-          },
-          child: const Icon(Icons.clear),
-        ),
-        contentPadding: const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
+        // suffixIcon: GestureDetector(
+        //   onTap: () {
+        //     setState(() {
+        //       _textController.text = "";
+        //       log("message");
+        //     });
+        //   },
+        //   child: const Icon(Icons.clear),
+        // ),
+        // contentPadding: const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(5),
           borderSide: BorderSide.none,

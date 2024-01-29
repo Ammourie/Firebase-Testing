@@ -16,7 +16,9 @@ class NotesListWidget extends StatelessWidget {
     // final double itemHeight = (size.height - kToolbarHeight - 24) / 2;
     // final double itemWidth = size.width / 2;
     return notes.isEmpty
-        ? const EmptyListWidget()
+        ? const EmptyListWidget(
+            text: 'Notes',
+          )
         : GridView.count(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
             primary: false,

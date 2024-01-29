@@ -1,0 +1,93 @@
+import 'package:fb_testing/models/user.dart';
+
+class MyMessage {
+  UserModel? user;
+  int? createdAt;
+  double? height;
+  String? id;
+  String? senderId;
+  String? recId;
+  String? name;
+  String? text;
+  int? size;
+  String? status;
+  String? type;
+  String? uri;
+  double? width;
+
+  MyMessage(
+      {this.user,
+      this.createdAt,
+      this.height,
+      this.text,
+      this.name,
+      this.id,
+      this.senderId,
+      this.recId,
+      this.size,
+      this.status,
+      this.type,
+      this.uri,
+      this.width});
+
+  MyMessage.fromJson(Map<String, dynamic> json) {
+    user = json['author'] != null ? UserModel.fromJson(json['author']) : null;
+    createdAt = json['createdAt'];
+    height = json['height']?.toDouble();
+    id = json['id'];
+    recId = json['recId'];
+    senderId = json['senderId'];
+    text = json['text'];
+    name = json['name'];
+    size = json['size'];
+    status = json['status'];
+    type = json['type'];
+    uri = json['uri'];
+    width = json['width']?.toDouble();
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    if (user != null) {
+      data['author'] = user!.toJson();
+    }
+    data['createdAt'] = createdAt;
+    data['height'] = height;
+    data['id'] = id;
+    data['text'] = text;
+    data['name'] = name;
+    data['size'] = size;
+    data['status'] = status;
+    data['type'] = type;
+    data['uri'] = uri;
+    data['width'] = width;
+    data['recId'] = recId;
+    data['senderId'] = senderId;
+    return data;
+  }
+}
+
+class Author {
+  String? firstName;
+  String? id;
+  String? imageUrl;
+  String? lastName;
+
+  Author({this.firstName, this.id, this.imageUrl, this.lastName});
+
+  Author.fromJson(Map<String, dynamic> json) {
+    firstName = json['firstName'];
+    id = json['id'];
+    imageUrl = json['imageUrl'];
+    lastName = json['lastName'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['firstName'] = firstName;
+    data['id'] = id;
+    data['imageUrl'] = imageUrl;
+    data['lastName'] = lastName;
+    return data;
+  }
+}

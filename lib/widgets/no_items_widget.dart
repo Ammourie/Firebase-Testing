@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 class EmptyListWidget extends StatelessWidget {
-  const EmptyListWidget({super.key});
-
+  const EmptyListWidget({super.key, required this.text});
+  final String text;
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -16,7 +16,7 @@ class EmptyListWidget extends StatelessWidget {
         ),
         const SizedBox(height: 20),
         Text(
-          "No Notes Found !",
+          "No $text Found !",
           style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                 fontSize: 26,
               ),

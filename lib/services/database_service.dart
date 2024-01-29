@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fb_testing/models/user.dart';
 import '../models/category.dart';
 import 'package:flutter/material.dart';
 import '../models/note.dart';
@@ -8,6 +9,7 @@ import '../models/note.dart';
 class DatabaseService {
   late CollectionReference _notesRefrence;
   late CollectionReference _categoriesRefrence;
+  late CollectionReference _usersRefrence;
 
   final String? id;
 
@@ -15,6 +17,7 @@ class DatabaseService {
     _notesRefrence = FirebaseFirestore.instance.collection("Notes_${id!}");
     _categoriesRefrence =
         FirebaseFirestore.instance.collection("Categories_${id!}");
+    _usersRefrence = FirebaseFirestore.instance.collection("Users");
   }
   Future updateUserNote({required NoteModel note}) async {
     // await updateCategoryDetails(
@@ -28,6 +31,11 @@ class DatabaseService {
       "color": note.color ?? Colors.red.shade100.value,
       // "category_id": note.category?.id,
     });
+  }
+
+  Future addUser({required UserModel user}) async {
+    log(user.toJson().toString());
+    return await _usersRefrence.doc(user.id).set(user.toJson());
   }
 
   Future updateCategoryDetails({required CategoryModel categoryModel}) async {
@@ -46,10 +54,21 @@ class DatabaseService {
     await _categoriesRefrence.doc(id).delete();
   }
 
-  Stream<List<NoteModel>> get notes {
-    return _notesRefrence
-        .snapshots()
-        .map((event) => _noteListFromSnapshot(event));
+  Stream<List<NoteModel>> notes({required String search}) {
+    log(search);
+    return _notesRefrence.snapshots().map((event) =>
+        _noteListFromSnapshot(event)
+            .where((element) => _search(element, search))
+            .toList());
+  }
+
+  bool _search(NoteModel element, String search) {
+    if (element.title!.toLowerCase().contains(search.toLowerCase()) ||
+        element.note!.toLowerCase().contains(search.toLowerCase())) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   List<NoteModel> _noteListFromSnapshot(QuerySnapshot snapshot) {
