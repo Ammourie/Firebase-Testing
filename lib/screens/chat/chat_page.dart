@@ -1,16 +1,20 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
+import 'dart:math' as math;
 
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:chat_bubbles/chat_bubbles.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:fb_testing/models/message.dart';
 import 'package:fb_testing/models/send_menu_item.dart';
 import 'package:fb_testing/models/user.dart';
 import 'package:fb_testing/services/chat_service.dart';
+import 'package:fb_testing/widgets/loading_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
@@ -23,7 +27,44 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
-  List<MyMessage> _messages = [];
+  TextEditingController text = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  void _scrollDown(bool animation) {
+    if (_scrollController.hasClients) {
+      if (animation) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent + 100,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.fastOutSlowIn,
+        );
+      } else {
+        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+      }
+    }
+  }
+
+  List<MyMessage> _messages = [
+    // MyMessage(text: "Hello, Will", isSender: true),
+    // MyMessage(text: "How have you been?", isSender: true),
+    // MyMessage(text: "Hey Kriss, I am doing fine dude. wbu?", isSender: false),
+    // MyMessage(text: "ehhhh, doing OK.", isSender: true),
+    // MyMessage(text: "Is there any thing wrong?", isSender: false),
+    // MyMessage(text: "Hello, Will", isSender: true),
+    // MyMessage(text: "How have you been?", isSender: true),
+    // MyMessage(text: "Hey Kriss, I am doing fine dude. wbu?", isSender: false),
+    // MyMessage(text: "ehhhh, doing OK.", isSender: true),
+    // MyMessage(text: "Is there any thing wrong?", isSender: false),
+    // MyMessage(text: "Hello, Will", isSender: true),
+    // MyMessage(text: "How have you been?", isSender: true),
+    // MyMessage(text: "Hey Kriss, I am doing fine dude. wbu?", isSender: false),
+    // MyMessage(text: "ehhhh, doing OK.", isSender: true),
+    // MyMessage(text: "Is there any thing wrong?", isSender: false),
+    // MyMessage(text: "Hello, Will", isSender: true),
+    // MyMessage(text: "How have you been?", isSender: true),
+    // MyMessage(text: "Hey Kriss, I am doing fine dude. wbu?", isSender: false),
+    // MyMessage(text: "ehhhh, doing OK.", isSender: true),
+    // MyMessage(text: "Is there any thing wrong?", isSender: false),
+  ];
   final UserModel _user =
       UserModel.fromFirebaseUser(FirebaseAuth.instance.currentUser!);
   List<SendMenuItems> menuItems = [];
@@ -31,6 +72,7 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
+    Future.delayed(Durations.medium1).then((value) => _scrollDown(true));
     menuItems = [
       SendMenuItems(
         text: "Photos",
@@ -38,6 +80,7 @@ class _ChatPageState extends State<ChatPage> {
         color: Colors.amber,
         onTap: () {
           _handleImageSelection();
+          _scrollDown(true);
         },
       ),
       // SendMenuItems(
@@ -58,6 +101,7 @@ class _ChatPageState extends State<ChatPage> {
         color: Colors.red,
         onTap: () {
           Navigator.pop(context);
+          _scrollDown(true);
         },
       ),
     ];
@@ -65,10 +109,16 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   _addMessage(MyMessage message) async {
-    _messages.insert(0, message);
+    _messages.add(message);
 
     setState(() {});
-    await ChatService.addTextMessage(message: message);
+    if (message.type == "text") {
+      await ChatService.addTextMessage(message: message);
+    }
+    if (message.type == "image") {
+      await ChatService.addImageMessage(message: message);
+    }
+    _scrollDown(true);
   }
 
   void _handleAttachmentPressed() {
@@ -76,7 +126,7 @@ class _ChatPageState extends State<ChatPage> {
         context: context,
         builder: (context) {
           return Container(
-            height: MediaQuery.of(context).size.height / 3.2,
+            height: 200,
             color: const Color(0xff737373),
             child: Container(
               decoration: const BoxDecoration(
@@ -224,7 +274,7 @@ class _ChatPageState extends State<ChatPage> {
   //   if (result != null && result.files.single.path != null) {
   //     final message = types.FileMessage(
   //       author: _user,
-  //       createdAt: DateTime.now().millisecondsSinceEpoch,
+  //       createdAt: DateTime.now(),
   //       id: const Uuid().v4(),
   //       mimeType: lookupMimeType(result.files.single.path!),
   //       name: result.files.single.name,
@@ -246,23 +296,24 @@ class _ChatPageState extends State<ChatPage> {
     if (result != null) {
       final bytes = await result.readAsBytes();
       final image = await decodeImageFromList(bytes);
+      File file = File(result.path);
 
       final message = MyMessage(
         user: _user,
-        createdAt: DateTime.now().millisecondsSinceEpoch,
+        createdAt: DateTime.now(),
         height: image.height.toDouble(),
         id: const Uuid().v4(),
         name: result.name,
         size: bytes.length,
-        uri: result.path,
+        image: file,
         senderId: _user.id,
         recId: widget.reciever.id,
         type: "image",
         width: image.width.toDouble(),
       );
+      Navigator.pop(context);
 
       _addMessage(message);
-      Navigator.pop(context);
     }
   }
 
@@ -325,13 +376,12 @@ class _ChatPageState extends State<ChatPage> {
   //   });
   // }
 
-  void _handleSendPressed(types.PartialText message) {
-    log(DateTime.now().millisecondsSinceEpoch.toString());
+  void _handleSendPressed(String text) {
     final textMessage = MyMessage(
         user: _user,
-        createdAt: DateTime.now().millisecondsSinceEpoch,
+        createdAt: DateTime.now(),
         id: const Uuid().v4(),
-        text: message.text,
+        text: text,
         type: "text",
         senderId: _user.id,
         recId: widget.reciever.id);
@@ -344,9 +394,7 @@ class _ChatPageState extends State<ChatPage> {
     final messages = (jsonDecode(response) as List)
         .map((e) => MyMessage.fromJson(e as Map<String, dynamic>))
         .toList();
-    messages.forEach(
-      (element) => log(element.toJson().toString()),
-    );
+
     setState(() {
       _messages = messages;
     });
@@ -356,8 +404,8 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
           surfaceTintColor: Colors.transparent,
-          elevation: 0,
-          backgroundColor: Colors.white,
+          elevation: 10,
+          // backgroundColor: Colors.white,
           automaticallyImplyLeading: false,
           flexibleSpace: SafeArea(
             child: Container(
@@ -409,52 +457,179 @@ class _ChatPageState extends State<ChatPage> {
             ),
           ),
         ),
-        body: StreamProvider<List<MyMessage>>.value(
-          value: ChatService().getMessages(recid: widget.reciever.id!),
-          catchError: (context, error) {
-            log(error.toString());
-            return [];
-          },
-          initialData: [],
-          child: Builder(builder: (context) {
-            _messages = Provider.of<List<MyMessage>>(context);
-            _messages.sort(
-              (b, a) => a.createdAt!.compareTo(b.createdAt!),
-            );
-            _messages.forEach(
-              (element) => log(element.toJson().toString()),
-            );
-            return Chat(
-              messages: _messages
-                  .map(
-                    (e) => types.Message.fromJson(
-                      e.toJson(),
+        body: Column(
+          children: <Widget>[
+            SizedBox(
+              height: math.min(
+                  MediaQuery.of(context).size.height - 3 * kToolbarHeight,
+                  MediaQuery.of(context).size.height -
+                      3 * kToolbarHeight -
+                      MediaQuery.of(context).viewInsets.bottom),
+              child: StreamProvider<List<MyMessage>>.value(
+                value: ChatService().getMessages(recid: widget.reciever.id!),
+                catchError: (context, error) {
+                  log(error.toString());
+                  return [];
+                },
+                initialData: [],
+                child: Builder(builder: (context) {
+                  _messages = Provider.of<List<MyMessage>>(context);
+                  _messages.sort(
+                    (a, b) => a.createdAt!.compareTo(b.createdAt!),
+                  );
+                  _messages.forEach((element) {
+                    log(element.type!);
+                  });
+                  return ListView.builder(
+                    primary: false,
+                    controller: _scrollController,
+                    itemCount: _messages.length,
+                    shrinkWrap: true,
+                    padding: const EdgeInsets.only(top: 10, bottom: 10),
+                    // physics: const NeverScrollableScrollPhysics(),
+
+                    itemBuilder: (context, index) {
+                      return _messages[index].type == "image"
+                          ? BubbleNormalImage(
+                              isSender: _messages[index].isSender!,
+                              padding: const EdgeInsets.all(12),
+                              id: _messages[index].id!,
+                              image: _messages[index].imgUrl == null
+                                  ? const LoadingWidget()
+                                  : Image.network(
+                                      _messages[index].imgUrl!,
+                                      loadingBuilder:
+                                          (context, child, loadingProgress) {
+                                        if (loadingProgress == null) {
+                                          return child;
+                                        }
+                                        return const LoadingWidget();
+                                      },
+                                    ))
+                          : BubbleNormal(
+                              padding: const EdgeInsets.all(12),
+                              color: _messages[index].isSender!
+                                  ? Theme.of(context).colorScheme.inversePrimary
+                                  : Colors.grey.shade200,
+                              textStyle: Theme.of(context)
+                                  .textTheme
+                                  .titleSmall!
+                                  .copyWith(
+                                    color: _messages[index].isSender!
+                                        ? Theme.of(context).primaryColor
+                                        : Colors.black,
+                                  ),
+                              isSender: _messages[index].isSender!,
+                              text: _messages[index].text!,
+                            );
+                    },
+                  );
+                }),
+              ),
+            ),
+            Spacer(),
+            Align(
+              alignment: Alignment.bottomLeft,
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                // height: 60,
+                width: double.infinity,
+                // color: Colors.white,
+                child: Focus(
+                  onFocusChange: (value) async {
+                    await Future.delayed(const Duration(milliseconds: 250));
+                    _scrollDown(true);
+                  },
+                  child: TextFormField(
+                    controller: text,
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyLarge!
+                        .copyWith(color: Colors.black),
+                    onTap: () {},
+                    decoration: InputDecoration(
+                      suffixIcon: GestureDetector(
+                        onTap: () {
+                          if (text.text != "") {
+                            setState(() {
+                              // _messages.add(
+                              //     MyMessage(text: text.text, isSender: true));
+                              _handleSendPressed(text.text);
+                              text.text = "";
+                            });
+                          }
+                        },
+                        child: const Icon(
+                          EvaIcons.paperPlaneOutline,
+                          size: 26,
+                        ),
+                      ),
+                      prefixIcon: GestureDetector(
+                        onTap: () {
+                          _handleAttachmentPressed();
+                        },
+                        child: const Icon(
+                          EvaIcons.attach,
+                          size: 26,
+                        ),
+                      ),
+                      hintText: " Message ...",
+                      hintStyle: Theme.of(context).textTheme.bodyLarge,
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 12),
                     ),
-                  )
-                  .toList(),
-              // onAttachmentPressed: _handleAttachmentPressed,
-              // onMessageTap: _handleMessageTap,
-              // onPreviewDataFetched: _handlePreviewDataFetched,
-              onSendPressed: _handleSendPressed,
-              // showUserAvatars: true,
-              // showUserNames: true,
-              user: types.User(id: _user.id!),
-              // isLeftStatus: true,
-              theme: DefaultChatTheme(
-                inputTextDecoration: InputDecoration(
-                    border: OutlineInputBorder(
-                  borderSide: BorderSide.none,
-                  borderRadius: BorderRadius.circular(10),
-                )),
-                seenIcon: const Text(
-                  'read',
-                  style: TextStyle(
-                    fontSize: 10.0,
                   ),
                 ),
               ),
-            );
-          }),
+            ),
+          ],
         ),
+        // body: StreamProvider<List<MyMessage>>.value(
+        //   value: ChatService().getMessages(recid: widget.reciever.id!),
+        //   catchError: (context, error) {
+        //     log(error.toString());
+        //     return [];
+        //   },
+        //   initialData: [],
+        //   child: Builder(builder: (context) {
+        //     _messages = Provider.of<List<MyMessage>>(context);
+        //     _messages.sort(
+        //       (b, a) => a.createdAt!.compareTo(b.createdAt!),
+        //     );
+        //     _messages.forEach(
+        //       (element) => log(element.toJson().toString()),
+        //     );
+        //     return Chat(
+        //       messages: _messages
+        //           .map(
+        //             (e) => types.Message.fromJson(
+        //               e.toJson(),
+        //             ),
+        //           )
+        //           .toList(),
+        //       // onAttachmentPressed: _handleAttachmentPressed,
+        //       // onMessageTap: _handleMessageTap,
+        //       // onPreviewDataFetched: _handlePreviewDataFetched,
+        //       onSendPressed: _handleSendPressed,
+        //       // showUserAvatars: true,
+        //       // showUserNames: true,
+        //       user: types.User(id: _user.id!),
+        //       // isLeftStatus: true,
+        //       theme: DefaultChatTheme(
+        //         inputTextDecoration: InputDecoration(
+        //             border: OutlineInputBorder(
+        //           borderSide: BorderSide.none,
+        //           borderRadius: BorderRadius.circular(10),
+        //         )),
+        //         seenIcon: const Text(
+        //           'read',
+        //           style: TextStyle(
+        //             fontSize: 10.0,
+        //           ),
+        //         ),
+        //       ),
+        //     );
+        //   }),
+        // ),
       );
 }

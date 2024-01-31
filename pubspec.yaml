@@ -60,6 +60,8 @@ dependencies:
   path_provider: ^2.1.2
   eva_icons_flutter: ^3.1.0
   chat_bubbles: ^1.6.0
+  cached_network_image: ^3.3.1
+  firebase_storage: ^11.6.0
   # animated_search_bar: ^2.7.1
   # phone_number: ^2.0.1
 

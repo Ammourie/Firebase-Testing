@@ -116,7 +116,9 @@ class MyDrawer extends StatelessWidget {
                             padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
                               image: DecorationImage(
-                                  image: NetworkImage(user.image ?? "")),
+                                image: NetworkImage(user.image!),
+                                fit: BoxFit.cover,
+                              ),
                               color:
                                   Theme.of(context).colorScheme.inversePrimary,
                               shape: BoxShape.circle,
@@ -132,17 +134,7 @@ class MyDrawer extends StatelessWidget {
                               width: 180,
                               height: 180,
                               padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .inversePrimary,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                Icons.person_2_sharp,
-                                color: Theme.of(context).primaryColor,
-                                size: 150,
-                              ));
+                              child: const LoadingWidget());
                         }
                       }),
                   const SizedBox(height: 10),

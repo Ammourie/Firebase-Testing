@@ -1,12 +1,15 @@
+import 'package:path/path.dart';
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fb_testing/models/message.dart';
 import 'package:fb_testing/models/user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class ChatService {
   List<UserModel> users = [];
+
   final CollectionReference _usersRefrence =
       FirebaseFirestore.instance.collection("Users");
   Stream<List<UserModel>> getAllUsersStram() {
@@ -61,12 +64,13 @@ class ChatService {
         .map(
           (e) => MyMessage(
             user: UserModel.fromJson(e.get("author")),
-            createdAt: e.get("createdAt"),
+            createdAt: e.get("createdAt").toDate(),
             type: e.get('type'),
             id: e.get('id'),
+            imgUrl: e.get('imgUrl'),
             recId: e.get('recId'),
             senderId: e.get('senderId'),
-            text: e.get('text'),
+            text: e.get('text') ?? "",
           ),
         )
         .toList();
@@ -74,5 +78,24 @@ class ChatService {
       log(element.text!);
     });
     return tmp;
+  }
+
+  static Future<void> addImageMessage({required MyMessage message}) async {
+    log("hello");
+    FirebaseStorage _storageReference = FirebaseStorage.instance;
+    Reference reference = _storageReference.ref();
+    Reference folderRef = reference.child("chat/images");
+    Reference imgref = folderRef.child(basename(message.image!.path));
+    try {
+      UploadTask uploadTask = imgref.putFile(message.image!);
+      String link = await uploadTask.then((p0) async {
+        return p0.ref.getDownloadURL();
+      });
+      // String url = await snp.ref.getDownloadURL();
+      message.imgUrl = link;
+      await addTextMessage(message: message);
+    } catch (e) {
+      log(e.toString());
+    }
   }
 }

@@ -1,8 +1,12 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:fb_testing/models/user.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class MyMessage {
   UserModel? user;
-  int? createdAt;
+  DateTime? createdAt;
   double? height;
   String? id;
   String? senderId;
@@ -12,23 +16,29 @@ class MyMessage {
   int? size;
   String? status;
   String? type;
-  String? uri;
+  File? image;
+  String? imgUrl;
   double? width;
-
-  MyMessage(
-      {this.user,
-      this.createdAt,
-      this.height,
-      this.text,
-      this.name,
-      this.id,
-      this.senderId,
-      this.recId,
-      this.size,
-      this.status,
-      this.type,
-      this.uri,
-      this.width});
+  bool? isSender = true;
+  MyMessage({
+    this.user,
+    this.createdAt,
+    this.height,
+    this.text,
+    this.name,
+    this.imgUrl,
+    this.id,
+    this.senderId,
+    this.recId,
+    this.size,
+    this.status,
+    this.type,
+    this.image,
+    this.isSender,
+    this.width,
+  }) {
+    isSender = FirebaseAuth.instance.currentUser!.uid == user!.id;
+  }
 
   MyMessage.fromJson(Map<String, dynamic> json) {
     user = json['author'] != null ? UserModel.fromJson(json['author']) : null;
@@ -39,10 +49,11 @@ class MyMessage {
     senderId = json['senderId'];
     text = json['text'];
     name = json['name'];
+    image = json['image'];
+    imgUrl = json['imgUrl'];
     size = json['size'];
     status = json['status'];
     type = json['type'];
-    uri = json['uri'];
     width = json['width']?.toDouble();
   }
 
@@ -53,13 +64,14 @@ class MyMessage {
     }
     data['createdAt'] = createdAt;
     data['height'] = height;
-    data['id'] = id;
     data['text'] = text;
+    data['id'] = id;
+    data['imgUrl'] = imgUrl;
     data['name'] = name;
     data['size'] = size;
     data['status'] = status;
     data['type'] = type;
-    data['uri'] = uri;
+    // data['image'] = image;
     data['width'] = width;
     data['recId'] = recId;
     data['senderId'] = senderId;
