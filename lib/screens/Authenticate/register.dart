@@ -111,9 +111,10 @@ class _RegisterState extends State<Register> {
                           loading = true;
                         });
                         await _authService.register(
-                            email: email.text,
-                            password: password.text,
-                            name: name.text,);
+                          email: email.text,
+                          password: password.text,
+                          name: name.text,
+                        );
                         // await notiservice.requestPermissions();
                         // await notiservice.getToken();
                         setState(() {
