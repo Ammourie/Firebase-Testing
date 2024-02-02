@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:math' as math;
 
+import 'package:fb_testing/services/chat_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -87,6 +88,7 @@ class AuthService {
         UserModel user = res.user == null
             ? UserModel()
             : UserModel.fromFirebaseUser(res.user!);
+        await ChatService.updateUserStatus(user: user);
         return user;
       }
     } catch (e) {
@@ -97,6 +99,14 @@ class AuthService {
 
   Future logout() async {
     try {
+      await ChatService.updateUserStatus(
+        user: UserModel(
+          isOnline: false,
+          lastOnline: DateTime.now(),
+          image: null,
+          imageUrl: null,
+        ),
+      );
       await _auth.signOut();
     } catch (e) {
       log(e.toString());

@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:fb_testing/models/user.dart';
 import 'package:firebase_auth/firebase_auth.dart';

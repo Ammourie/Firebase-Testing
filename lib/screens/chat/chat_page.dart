@@ -3,21 +3,21 @@ import 'dart:developer';
 import 'dart:io';
 import 'dart:math' as math;
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat_bubbles/chat_bubbles.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:fb_testing/models/message.dart';
 import 'package:fb_testing/models/send_menu_item.dart';
 import 'package:fb_testing/models/user.dart';
 import 'package:fb_testing/services/chat_service.dart';
+import 'package:fb_testing/services/notification_service.dart';
 import 'package:fb_testing/widgets/loading_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key, required this.reciever});
@@ -26,7 +26,7 @@ class ChatPage extends StatefulWidget {
   State<ChatPage> createState() => _ChatPageState();
 }
 
-class _ChatPageState extends State<ChatPage> {
+class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
   TextEditingController text = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   void _scrollDown(bool animation) {
@@ -40,6 +40,39 @@ class _ChatPageState extends State<ChatPage> {
       } else {
         _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
       }
+    }
+  }
+
+  @override
+  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
+    super.didChangeAppLifecycleState(state);
+    switch (state) {
+      case AppLifecycleState.resumed:
+        await ChatService.updateUserStatus(
+          user: UserModel(
+            isOnline: true,
+            lastOnline: DateTime.now(),
+            image: null,
+            imageUrl: null,
+          ),
+        );
+
+        break;
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.paused:
+      case AppLifecycleState.detached:
+        await ChatService.updateUserStatus(
+          user: UserModel(
+            isOnline: false,
+            lastOnline: DateTime.now(),
+            image: null,
+            imageUrl: null,
+          ),
+        );
+        break;
+
+      default:
+        break;
     }
   }
 
@@ -110,7 +143,6 @@ class _ChatPageState extends State<ChatPage> {
 
   _addMessage(MyMessage message) async {
     _messages.add(message);
-
     setState(() {});
     if (message.type == "text") {
       await ChatService.addTextMessage(message: message);
@@ -119,6 +151,8 @@ class _ChatPageState extends State<ChatPage> {
       await ChatService.addImageMessage(message: message);
     }
     _scrollDown(true);
+    // await NotificationService().sendNoti(
+    //     body: message.text ?? "Image ig", senderId: message.senderId!);
   }
 
   void _handleAttachmentPressed() {
@@ -376,7 +410,8 @@ class _ChatPageState extends State<ChatPage> {
   //   });
   // }
 
-  void _handleSendPressed(String text) {
+  Future<void> _handleSendPressed(String text) async {
+    // await NotificationService().getRecToken(widget.reciever.id!);
     final textMessage = MyMessage(
         user: _user,
         createdAt: DateTime.now(),
@@ -444,11 +479,30 @@ class _ChatPageState extends State<ChatPage> {
                                     color: Colors.black,
                                   ),
                         ),
-                        Text(
-                          "Online",
-                          style: TextStyle(
-                              color: Colors.grey.shade600, fontSize: 13),
-                        ),
+                        StreamBuilder(
+                            stream:
+                                ChatService.getUserById(widget.reciever.id!),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                return Text(
+                                  snapshot.data!.isOnline
+                                      ? "Online"
+                                      : timeago
+                                          .format(snapshot.data!.lastOnline!),
+                                  style: TextStyle(
+                                      color: Colors.grey.shade600,
+                                      fontSize: 13),
+                                );
+                              } else {
+                                return Text(
+                                  timeago.format(DateTime.now()),
+                                  style: TextStyle(
+                                    color: Colors.grey.shade600,
+                                    fontSize: 13,
+                                  ),
+                                );
+                              }
+                            }),
                       ],
                     ),
                   ),
