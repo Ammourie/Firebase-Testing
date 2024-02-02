@@ -11,12 +11,14 @@ import 'models/user.dart';
 import 'screens/Authenticate/auth_screen.dart';
 import 'screens/Home/home_screen.dart';
 import 'services/auth_service.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     // systemNavigationBarColor: Colors.black, // navigation bar color
     statusBarColor: Colors.transparent, // status bar color

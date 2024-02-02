@@ -1,4 +1,3 @@
-import 'package:path/path.dart';
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -6,6 +5,7 @@ import 'package:fb_testing/models/message.dart';
 import 'package:fb_testing/models/user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:path/path.dart';
 
 class ChatService {
   List<UserModel> users = [];
@@ -16,6 +16,24 @@ class ChatService {
     return _usersRefrence.snapshots().map(_usersListFromSnapshot);
   }
 
+  static Stream<UserModel> getUserById(String id) {
+    return FirebaseFirestore.instance
+        .collection("Users")
+        .doc(id)
+        .snapshots()
+        .map((doc) {
+      return UserModel(
+        name: doc.get("name"),
+        id: doc.get('id'),
+        email: doc.get('email'),
+        phoneNumber: doc.get('phoneNumber'),
+        image: doc.get('image'),
+        isOnline: doc.get('isOnline') ?? false,
+        lastOnline: doc.get('lastOnline').toDate(),
+      );
+    });
+  }
+
   List<UserModel> _usersListFromSnapshot(QuerySnapshot snapshot) {
     List<UserModel> tmp = [];
     for (var doc in snapshot.docs) {
@@ -23,7 +41,7 @@ class ChatService {
         name: doc.get("name"),
         id: doc.get('id'),
         email: doc.get('email'),
-        phoneNumber: doc.get('phoneNumber'),
+        // phoneNumber: doc.get('phoneNumber'),
         image: doc.get('image'),
         isOnline: doc.get('isOnline') ?? false,
         lastOnline: doc.get('lastOnline').toDate(),
@@ -97,5 +115,12 @@ class ChatService {
     } catch (e) {
       log(e.toString());
     }
+  }
+
+  static Future<void> updateUserStatus({required UserModel user}) async {
+    await FirebaseFirestore.instance
+        .collection("Users")
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .update(user.toJson());
   }
 }

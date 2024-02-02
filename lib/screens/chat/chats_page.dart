@@ -3,18 +3,19 @@ import 'dart:developer';
 import 'package:fb_testing/models/user.dart';
 import 'package:fb_testing/screens/chat/chat_list_tile.dart';
 import 'package:fb_testing/services/chat_service.dart';
+import 'package:fb_testing/services/notification_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class ChatsPage extends StatefulWidget {
-  ChatsPage({super.key});
+  const ChatsPage({super.key});
 
   @override
   State<ChatsPage> createState() => _ChatsPageState();
 }
 
-class _ChatsPageState extends State<ChatsPage> {
+class _ChatsPageState extends State<ChatsPage> with WidgetsBindingObserver {
   // final List<UserModel> user = [
   //   UserModel(
   //     isOnline: false,
@@ -56,33 +57,90 @@ class _ChatsPageState extends State<ChatsPage> {
   //     phoneNumber: "+963933564291",
   //   ),
   // ];
-
+  // final NotificationService notificationService = NotificationService();
   @override
   void initState() {
+    WidgetsBinding.instance.addObserver(this);
+    // notificationService.firebaseNotification(context);
+    ChatService.updateUserStatus(
+      user: UserModel(
+        isOnline: true,
+        lastOnline: DateTime.now(),
+        image: null,
+        imageUrl: null,
+      ),
+    );
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    ChatService.updateUserStatus(
+      user: UserModel(
+        isOnline: false,
+        lastOnline: DateTime.now(),
+        image: null,
+        imageUrl: null,
+      ),
+    );
+    super.dispose();
+  }
+
+  @override
+  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
+    super.didChangeAppLifecycleState(state);
+    switch (state) {
+      case AppLifecycleState.resumed:
+        await ChatService.updateUserStatus(
+          user: UserModel(
+            isOnline: true,
+            lastOnline: DateTime.now(),
+            image: null,
+            imageUrl: null,
+          ),
+        );
+
+        break;
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.paused:
+      case AppLifecycleState.detached:
+        await ChatService.updateUserStatus(
+          user: UserModel(
+            isOnline: false,
+            lastOnline: DateTime.now(),
+            image: null,
+            imageUrl: null,
+          ),
+        );
+        break;
+
+      default:
+        break;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Users"),
+        title: const Text("Users"),
       ),
       body: StreamProvider<List<UserModel>>.value(
         catchError: (context, error) {
-          log("error: " + error.toString());
+          log("error: $error");
           return [];
         },
         value: ChatService().getAllUsersStram(),
-        initialData: [],
+        initialData: const [],
         child: Builder(builder: (context) {
           List<UserModel> users = Provider.of<List<UserModel>>(context);
           log(users.length.toString());
           return ListView.builder(
             itemCount: users.length,
             shrinkWrap: true,
-            padding: EdgeInsets.only(top: 16),
-            physics: NeverScrollableScrollPhysics(),
+            padding: const EdgeInsets.only(top: 16),
+            physics: const NeverScrollableScrollPhysics(),
             itemBuilder: (context, index) {
               return FirebaseAuth.instance.currentUser!.uid == users[index].id
                   ? const SizedBox()

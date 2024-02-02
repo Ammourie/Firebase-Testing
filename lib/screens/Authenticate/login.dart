@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:email_validator/email_validator.dart';
+import 'package:fb_testing/services/notification_service.dart';
 import 'register.dart';
 import 'package:flutter/material.dart';
 
@@ -22,6 +23,7 @@ class _LoginState extends State<Login> {
   bool obscure = true;
 
   final AuthService _authService = AuthService();
+  // final NotificationService _notificationService = NotificationService();
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -85,6 +87,8 @@ class _LoginState extends State<Login> {
                           email: email.text,
                           password: password.text,
                         );
+                        // await _notificationService.requestPermissions();
+                        // await _notificationService.getToken();
                         setState(() {
                           loading = false;
                         });

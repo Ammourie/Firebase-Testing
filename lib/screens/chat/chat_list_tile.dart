@@ -38,7 +38,8 @@ class _ConversationListState extends State<ConversationList> {
         );
       },
       child: Container(
-        padding: EdgeInsets.only(left: 16, right: 16, top: 10, bottom: 10),
+        padding:
+            const EdgeInsets.only(left: 16, right: 16, top: 10, bottom: 10),
         child: Row(
           children: <Widget>[
             Expanded(
@@ -48,9 +49,7 @@ class _ConversationListState extends State<ConversationList> {
                     backgroundImage: NetworkImage(widget.imageUrl),
                     maxRadius: 30,
                   ),
-                  SizedBox(
-                    width: 16,
-                  ),
+                  const SizedBox(width: 16),
                   Expanded(
                     child: Container(
                       color: Colors.transparent,
@@ -59,20 +58,25 @@ class _ConversationListState extends State<ConversationList> {
                         children: <Widget>[
                           Text(
                             widget.name,
-                            style: TextStyle(fontSize: 16),
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium!
+                                .copyWith(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.normal,
+                                  fontSize: 20,
+                                ),
                           ),
-                          SizedBox(
-                            height: 6,
-                          ),
-                          Text(
-                            widget.messageText,
-                            style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.grey.shade600,
-                                fontWeight: widget.isOnline
-                                    ? FontWeight.bold
-                                    : FontWeight.normal),
-                          ),
+                          // const SizedBox(height: 6),
+                          // Text(
+                          //   widget.messageText,
+                          //   style: TextStyle(
+                          //       fontSize: 13,
+                          //       color: Colors.grey.shade600,
+                          //       fontWeight: widget.isOnline
+                          //           ? FontWeight.bold
+                          //           : FontWeight.normal),
+                          // ),
                         ],
                       ),
                     ),
