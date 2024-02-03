@@ -1,8 +1,8 @@
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fb_testing/models/message.dart';
-import 'package:fb_testing/models/user.dart';
+import '../models/message.dart';
+import '../models/user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path/path.dart';
@@ -22,6 +22,7 @@ class ChatService {
         .doc(id)
         .snapshots()
         .map((doc) {
+      log(doc.get('lastOnline').toDate());
       return UserModel(
         name: doc.get("name"),
         id: doc.get('id'),
@@ -32,6 +33,20 @@ class ChatService {
         lastOnline: doc.get('lastOnline').toDate(),
       );
     });
+  }
+
+  static Future<UserModel> getUserLastOnline(String id) async {
+    var doc =
+        await FirebaseFirestore.instance.collection("Users").doc(id).get();
+    return UserModel(
+      name: doc.get("name"),
+      id: doc.get('id'),
+      email: doc.get('email'),
+      phoneNumber: doc.get('phoneNumber'),
+      image: doc.get('image'),
+      isOnline: doc.get('isOnline') ?? false,
+      lastOnline: doc.get('lastOnline').toDate(),
+    );
   }
 
   List<UserModel> _usersListFromSnapshot(QuerySnapshot snapshot) {
@@ -99,7 +114,6 @@ class ChatService {
   }
 
   static Future<void> addImageMessage({required MyMessage message}) async {
-    log("hello");
     FirebaseStorage _storageReference = FirebaseStorage.instance;
     Reference reference = _storageReference.ref();
     Reference folderRef = reference.child("chat/images");

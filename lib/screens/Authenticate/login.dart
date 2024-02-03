@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:email_validator/email_validator.dart';
-import 'package:fb_testing/services/notification_service.dart';
 import 'register.dart';
 import 'package:flutter/material.dart';
 
@@ -83,15 +82,17 @@ class _LoginState extends State<Login> {
                         setState(() {
                           loading = true;
                         });
-                        await _authService.login(
+                        var x = await _authService.login(
                           email: email.text,
                           password: password.text,
                         );
                         // await _notificationService.requestPermissions();
                         // await _notificationService.getToken();
-                        setState(() {
-                          loading = false;
-                        });
+                        if (x == null) {
+                          setState(() {
+                            loading = false;
+                          });
+                        }
                       }
                     },
                     child: Text(

@@ -1,7 +1,7 @@
 import 'dart:developer';
 import 'dart:math' as math;
 
-import 'package:fb_testing/services/chat_service.dart';
+import 'chat_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 

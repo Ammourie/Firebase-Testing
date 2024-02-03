@@ -1,7 +1,8 @@
-import 'package:fb_testing/models/user.dart';
-import 'package:fb_testing/screens/chat/chat_page.dart';
 import 'package:flutter/material.dart';
 import 'package:timeago/timeago.dart' as timeago;
+
+import '../../models/user.dart';
+import 'chat_page.dart';
 
 // ignore: must_be_immutable
 class ConversationList extends StatefulWidget {

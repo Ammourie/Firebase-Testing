@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:fb_testing/models/user.dart';
+import 'user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class MyMessage {

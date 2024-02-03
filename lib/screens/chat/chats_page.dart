@@ -1,12 +1,12 @@
 import 'dart:developer';
 
-import 'package:fb_testing/models/user.dart';
-import 'package:fb_testing/screens/chat/chat_list_tile.dart';
-import 'package:fb_testing/services/chat_service.dart';
-import 'package:fb_testing/services/notification_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import '../../models/user.dart';
+import '../../services/chat_service.dart';
+import 'chat_list_tile.dart';
 
 class ChatsPage extends StatefulWidget {
   const ChatsPage({super.key});

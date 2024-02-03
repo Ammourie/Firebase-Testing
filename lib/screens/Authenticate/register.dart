@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:email_validator/email_validator.dart';
-import 'package:fb_testing/services/notification_service.dart';
 import 'package:flutter/material.dart';
 
 import '../../services/auth_service.dart';
@@ -110,16 +109,18 @@ class _RegisterState extends State<Register> {
                         setState(() {
                           loading = true;
                         });
-                        await _authService.register(
+                        var x = await _authService.register(
                           email: email.text,
                           password: password.text,
                           name: name.text,
                         );
                         // await notiservice.requestPermissions();
                         // await notiservice.getToken();
-                        setState(() {
-                          loading = false;
-                        });
+                        if (x == null) {
+                          setState(() {
+                            loading = false;
+                          });
+                        }
                       }
                     },
                     child: Text(

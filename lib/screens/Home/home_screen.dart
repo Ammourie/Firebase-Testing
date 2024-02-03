@@ -1,7 +1,12 @@
-import 'package:fb_testing/screens/chat/chats_page.dart';
-import 'package:fb_testing/services/chat_service.dart';
-import 'package:fb_testing/utils/dialogs.dart';
-import 'package:fb_testing/widgets/loading_widget.dart';
+import 'dart:io';
+
+import 'package:eva_icons_flutter/eva_icons_flutter.dart';
+import 'package:image_picker/image_picker.dart';
+
+import '../chat/chats_page.dart';
+import '../../services/chat_service.dart';
+import '../../utils/dialogs.dart';
+import '../../widgets/loading_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:getwidget/components/drawer/gf_drawer.dart';
@@ -30,7 +35,9 @@ class _HomeScreenState extends State<HomeScreen> {
     UserModel? user = Provider.of<UserModel>(context);
 
     return Scaffold(
-      drawer: MyDrawer(),
+      drawer: MyDrawer(
+        usr: user,
+      ),
       appBar: AppBar(
         toolbarHeight: kToolbarHeight + 50,
         shadowColor: Colors.black,
@@ -87,7 +94,9 @@ class _HomeScreenState extends State<HomeScreen> {
 class MyDrawer extends StatelessWidget {
   MyDrawer({
     super.key,
+    required this.usr,
   });
+  final UserModel usr;
   final AuthService _authService = AuthService();
   @override
   Widget build(BuildContext context) {
@@ -110,19 +119,66 @@ class MyDrawer extends StatelessWidget {
                                   FirebaseAuth.instance.currentUser!.uid)
                               .first;
 
-                          return Container(
-                            width: 180,
-                            height: 180,
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              image: DecorationImage(
-                                image: NetworkImage(user.image!),
-                                fit: BoxFit.cover,
+                          return Stack(
+                            children: [
+                              Container(
+                                width: 200,
+                                height: 200,
+                                padding: const EdgeInsets.all(10),
+                                // decoration: BoxDecoration(
+                                //   //   image: DecorationImage(
+                                //   //     image: NetworkImage(user.image!),
+                                //   //     fit: BoxFit.cover,
+                                //   //   ),
+                                //   // color:
+                                //   //     Theme.of(context).colorScheme.inversePrimary,
+                                //   shape: BoxShape.circle,
+                                // ),
+                                child: ClipOval(
+                                  child: Image.network(
+                                    user.image!,
+                                    fit: BoxFit.cover,
+                                    loadingBuilder:
+                                        (context, child, loadingProgress) {
+                                      if (loadingProgress == null) return child;
+                                      return const LoadingWidget();
+                                    },
+                                  ),
+                                ),
                               ),
-                              color:
-                                  Theme.of(context).colorScheme.inversePrimary,
-                              shape: BoxShape.circle,
-                            ),
+                              PositionedDirectional(
+                                  bottom: 5,
+                                  end: 5,
+                                  width: 60,
+                                  height: 60,
+                                  child: GestureDetector(
+                                    onTap: () async {
+                                      final result =
+                                          await ImagePicker().pickImage(
+                                        imageQuality: 60,
+                                        maxWidth: 1440,
+                                        source: ImageSource.gallery,
+                                      );
+
+                                      if (result != null) {
+                                        File file = File(result.path);
+                                        await DatabaseService.updateMyPFP(
+                                            user, file);
+                                      }
+                                    },
+                                    child: Container(
+                                      decoration: const BoxDecoration(
+                                          color: Colors.white,
+                                          shape: BoxShape.circle),
+                                      child: Icon(
+                                        EvaIcons.plusCircleOutline,
+                                        size: 60,
+                                        color: Theme.of(context).primaryColor,
+                                        // color: Colors.white,
+                                      ),
+                                    ),
+                                  ))
+                            ],
                           );
                           // Icon(
                           //   Icons.person_2_sharp,
@@ -130,11 +186,58 @@ class MyDrawer extends StatelessWidget {
                           //   size: 150,
                           // );
                         } else {
-                          return Container(
-                              width: 180,
-                              height: 180,
-                              padding: const EdgeInsets.all(10),
-                              child: const LoadingWidget());
+                          return Stack(
+                            children: [
+                              Container(
+                                width: 180,
+                                height: 180,
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  EvaIcons.personOutline,
+                                  size:
+                                      MediaQuery.of(context).size.aspectRatio *
+                                          300,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              PositionedDirectional(
+                                  bottom: 5,
+                                  end: 5,
+                                  width: 60,
+                                  height: 60,
+                                  child: GestureDetector(
+                                    onTap: () async {
+                                      final result =
+                                          await ImagePicker().pickImage(
+                                        imageQuality: 60,
+                                        maxWidth: 1440,
+                                        source: ImageSource.gallery,
+                                      );
+
+                                      if (result != null) {
+                                        File file = File(result.path);
+                                        await DatabaseService.updateMyPFP(
+                                            usr, file);
+                                      }
+                                    },
+                                    child: Container(
+                                      decoration: const BoxDecoration(
+                                          color: Colors.white,
+                                          shape: BoxShape.circle),
+                                      child: Icon(
+                                        EvaIcons.plusCircleOutline,
+                                        size: 60,
+                                        color: Theme.of(context).primaryColor,
+                                        // color: Colors.white,
+                                      ),
+                                    ),
+                                  ))
+                            ],
+                          );
                         }
                       }),
                   const SizedBox(height: 10),

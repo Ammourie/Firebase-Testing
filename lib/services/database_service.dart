@@ -1,7 +1,12 @@
+import 'dart:io';
+
+import 'package:fb_testing/services/chat_service.dart';
+import 'package:path/path.dart';
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fb_testing/models/user.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import '../models/user.dart';
 import '../models/category.dart';
 import 'package:flutter/material.dart';
 import '../models/note.dart';
@@ -110,5 +115,23 @@ class DatabaseService {
       return date1.compareTo(date2);
     });
     return categories;
+  }
+
+  static Future updateMyPFP(UserModel user, File image) async {
+    FirebaseStorage storageReference = FirebaseStorage.instance;
+    Reference reference = storageReference.ref();
+    Reference folderRef = reference.child("images/pfp");
+    Reference imgref = folderRef.child(basename(image.path));
+    try {
+      UploadTask uploadTask = imgref.putFile(image);
+      String link = await uploadTask.then((p0) async {
+        return p0.ref.getDownloadURL();
+      });
+      // String url = await snp.ref.getDownloadURL();
+      user.image = link;
+      await ChatService.updateUserStatus(user: user);
+    } catch (e) {
+      log(e.toString());
+    }
   }
 }

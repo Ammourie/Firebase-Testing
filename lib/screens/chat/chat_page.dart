@@ -5,19 +5,19 @@ import 'dart:math' as math;
 
 import 'package:chat_bubbles/chat_bubbles.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
-import 'package:fb_testing/models/message.dart';
-import 'package:fb_testing/models/send_menu_item.dart';
-import 'package:fb_testing/models/user.dart';
-import 'package:fb_testing/services/chat_service.dart';
-import 'package:fb_testing/services/notification_service.dart';
-import 'package:fb_testing/widgets/loading_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:uuid/uuid.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:uuid/uuid.dart';
+
+import '../../models/message.dart';
+import '../../models/send_menu_item.dart';
+import '../../models/user.dart';
+import '../../services/chat_service.dart';
+import '../../widgets/loading_widget.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key, required this.reciever});
@@ -33,8 +33,8 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
     if (_scrollController.hasClients) {
       if (animation) {
         _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent + 100,
-          duration: const Duration(milliseconds: 500),
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
           curve: Curves.fastOutSlowIn,
         );
       } else {
@@ -113,7 +113,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
         color: Colors.amber,
         onTap: () {
           _handleImageSelection();
-          _scrollDown(true);
+          _scrollDown(false);
         },
       ),
       // SendMenuItems(
@@ -134,7 +134,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
         color: Colors.red,
         onTap: () {
           Navigator.pop(context);
-          _scrollDown(true);
+          _scrollDown(false);
         },
       ),
     ];
@@ -479,23 +479,25 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                                     color: Colors.black,
                                   ),
                         ),
-                        StreamBuilder(
-                            stream:
-                                ChatService.getUserById(widget.reciever.id!),
+                        StreamBuilder<List<UserModel>>(
+                            stream: ChatService().getAllUsersStram(),
                             builder: (context, snapshot) {
                               if (snapshot.hasData) {
+                                UserModel user = snapshot.data!
+                                    .where((element) =>
+                                        widget.reciever.id == element.id!)
+                                    .first;
                                 return Text(
-                                  snapshot.data!.isOnline
+                                  user.isOnline
                                       ? "Online"
-                                      : timeago
-                                          .format(snapshot.data!.lastOnline!),
+                                      : timeago.format(user.lastOnline!),
                                   style: TextStyle(
                                       color: Colors.grey.shade600,
                                       fontSize: 13),
                                 );
                               } else {
                                 return Text(
-                                  timeago.format(DateTime.now()),
+                                  timeago.format(widget.reciever.lastOnline!),
                                   style: TextStyle(
                                     color: Colors.grey.shade600,
                                     fontSize: 13,
@@ -592,7 +594,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                 child: Focus(
                   onFocusChange: (value) async {
                     await Future.delayed(const Duration(milliseconds: 250));
-                    _scrollDown(true);
+                    _scrollDown(false);
                   },
                   child: TextFormField(
                     controller: text,
