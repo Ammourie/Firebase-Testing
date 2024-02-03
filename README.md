@@ -1,16 +1,12 @@
-# fb_testing
+                                                                                      # Firebase Testing app
 
-A new Flutter project.
+a simple flutter app to test firebase functions.
+register/login through firebase authenticatoin
+notes add,delete,update and search using firestore.
+simple chat between users
+images upload to firebase storage 
 
-## Getting Started
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Getting Started                                      
+                                                                                                                                                                ![video_2024-02-03_21-41-00-ezgif com-video-to-gif-converter](https://github.com/Ammourie/Firebase-Testing/assets/59035839/125a662a-25c7-4b02-aaa3-9ff5d4e1f91b)
+                                                                                                                                                                                                                                                
