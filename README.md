@@ -11,7 +11,7 @@ images upload to firebase storage
 the cvid colors are dameged ☹️
 <p float="left">
 
-<img src= "https://github.com/Ammourie/Firebase-Testing/assets/59035839/5488fd3f-fd38-4191-9d86-9ac09b6d2c0f" width="200" />
+<img src= "https://github.com/Ammourie/Firebase-Testing/assets/59035839/5488fd3f-fd38-4191-9d86-9ac09b6d2c0f" width="300" />
 </p>
 
 some pics 
