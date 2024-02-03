@@ -9,7 +9,7 @@ images upload to firebase storage
 
 ## simple vid    
 the cvid colors are dameged ☹️
-![output](https://github.com/Ammourie/Firebase-Testing/assets/59035839/5488fd3f-fd38-4191-9d86-9ac09b6d2c0f)
+<img src= "https://github.com/Ammourie/Firebase-Testing/assets/59035839/5488fd3f-fd38-4191-9d86-9ac09b6d2c0f" width="200" />
 some pics 
 <p float="left">
 <img src= "https://github.com/Ammourie/Firebase-Testing/assets/59035839/ba32cea7-31a5-4c19-aa42-0686fed4e1db" width="200" />
