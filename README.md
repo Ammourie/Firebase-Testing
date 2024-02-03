@@ -11,11 +11,13 @@ images upload to firebase storage
 the cvid colors are dameged ☹️
 ![output](https://github.com/Ammourie/Firebase-Testing/assets/59035839/5488fd3f-fd38-4191-9d86-9ac09b6d2c0f)
 some pics 
-![photo_5_2024-02-03_22-09-47](https://github.com/Ammourie/Firebase-Testing/assets/59035839/ba32cea7-31a5-4c19-aa42-0686fed4e1db)
-![photo_1_2024-02-03_22-09-47](https://github.com/Ammourie/Firebase-Testing/assets/59035839/b967fbf8-71d7-4cce-8c91-c50f39c10e58)
-![photo_2_2024-02-03_22-09-47](https://github.com/Ammourie/Firebase-Testing/assets/59035839/87257eff-20c1-4838-831b-93dbc1709d74)
-![photo_6_2024-02-03_22-09-47](https://github.com/Ammourie/Firebase-Testing/assets/59035839/14a99527-5d9e-465c-a9bc-012df008006d)
-![photo_4_2024-02-03_22-09-47](https://github.com/Ammourie/Firebase-Testing/assets/59035839/9ff08a9d-f2ed-4b4f-ae75-3ff430ed5c8c)
+<p float="left">
+<img src= "https://github.com/Ammourie/Firebase-Testing/assets/59035839/ba32cea7-31a5-4c19-aa42-0686fed4e1db" width="200" />
+<img src= "https://github.com/Ammourie/Firebase-Testing/assets/59035839/b967fbf8-71d7-4cce-8c91-c50f39c10e58" width="200" />
+<img src= "https://github.com/Ammourie/Firebase-Testing/assets/59035839/87257eff-20c1-4838-831b-93dbc1709d74" width="200" />
+<img src= "https://github.com/Ammourie/Firebase-Testing/assets/59035839/14a99527-5d9e-465c-a9bc-012df008006d" width="200" />
+<img src= "https://github.com/Ammourie/Firebase-Testing/assets/59035839/9ff08a9d-f2ed-4b4f-ae75-3ff430ed5c8c" width="200" />
+</p>
 
 
 
